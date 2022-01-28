@@ -1,21 +1,18 @@
 package lesson1;
 
 public class Orange extends Fruit {
-    private float weight;
+
 
     public Orange() {
-        this.weight = 1.5f;
+        super(1.0f);
     }
 
-    @Override
-    public float getWeight() {
-        return weight;
-    }
+
 
     @Override
     public String toString() {
         return "Orange{" +
-                "weight=" + weight +
+                "weight=" + getWeight() +
                 '}';
     }
 }
