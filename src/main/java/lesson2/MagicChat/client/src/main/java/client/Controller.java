@@ -2,7 +2,6 @@ package client;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -17,7 +16,6 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.stage.WindowEvent;
 import service.ServiceMessages;
 
 import java.io.DataInputStream;
@@ -111,6 +109,7 @@ public class Controller implements Initializable {
                             if (str.startsWith(ServiceMessages.AUTH_OK)) {
                                 nickname = str.split(" ")[1];
                                 setAuthenticated(true);
+                                textArea.appendText(History.getOneHundredLinesHistory(nickname));
                                 break;
                             }
                             if (str.startsWith(ServiceMessages.REG)) {
@@ -144,6 +143,7 @@ public class Controller implements Initializable {
 
                         } else {
                             textArea.appendText(str + "\n");
+                            History.writeHistoryClient(nickname,str+"\n");
                         }
                     }
                 } catch (IOException e) {
@@ -151,6 +151,7 @@ public class Controller implements Initializable {
                 } finally {
                     try {
                         socket.close();
+                        History.closeStreamOutHistory();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
