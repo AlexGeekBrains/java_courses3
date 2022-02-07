@@ -10,6 +10,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server {
 
@@ -23,10 +25,12 @@ public class Server {
     public Server() {
         clients = new CopyOnWriteArrayList<>();
         authService = new DbAuthService();
+        ExecutorService service = Executors.newCachedThreadPool();
+
         try {
             DataSource.connect();
         } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Неудалось подключиться к БД");
         }
 
         try {
@@ -37,11 +41,15 @@ public class Server {
             while (true) {
                 socket = server.accept();
                 System.out.println("Client connected: " + socket.getRemoteSocketAddress());
-                new ClientHandler(this, socket);
+                service.execute(() -> {
+                    new ClientHandler(this, socket);
+                });
+
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            service.shutdown();
             DataSource.disconnect();
             System.out.println("Server stop");
             try {
@@ -105,6 +113,7 @@ public class Server {
             c.sendMsg(message);
         }
     }
+
 
     public AuthService getAuthService() {
         return authService;

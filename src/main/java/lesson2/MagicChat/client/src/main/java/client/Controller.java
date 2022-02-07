@@ -50,9 +50,11 @@ public class Controller implements Initializable {
 
     private boolean authenticated;
     private String nickname;
+    private String login;
     private Stage stage;
     private Stage regStage;
     private RegController regController;
+
 
     public void setAuthenticated(boolean authenticated) {
         this.authenticated = authenticated;
@@ -108,8 +110,9 @@ public class Controller implements Initializable {
                             }
                             if (str.startsWith(ServiceMessages.AUTH_OK)) {
                                 nickname = str.split(" ")[1];
+                                login = str.split(" ")[2];
                                 setAuthenticated(true);
-                                textArea.appendText(History.getOneHundredLinesHistory(nickname));
+                                textArea.appendText(History.getOneHundredLinesHistory(login));
                                 break;
                             }
                             if (str.startsWith(ServiceMessages.REG)) {
@@ -140,10 +143,13 @@ public class Controller implements Initializable {
                                     }
                                 });
                             }
-
+                            if (str.startsWith(ServiceMessages.NEW_NICK)) {
+                                nickname = str.split(" ")[1];
+                                setTitle(nickname);
+                            }
                         } else {
                             textArea.appendText(str + "\n");
-                            History.writeHistoryClient(nickname,str+"\n");
+                            History.writeHistoryClient(login, str + "\n");
                         }
                     }
                 } catch (IOException e) {
