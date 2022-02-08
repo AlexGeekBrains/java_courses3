@@ -10,5 +10,7 @@ public class ServiceMessages {
     public static final String END = "/end";
     public static final String AUTH_OK = "/authok";
     public static final String AUTH = "/auth";
+    public static final String CH_NICK = "/chnick";
+    public static final String NEW_NICK = "/newNick ";
 
 }

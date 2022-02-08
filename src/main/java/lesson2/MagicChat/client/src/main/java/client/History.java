@@ -8,12 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class History {
-    private static FileOutputStream out;
 
+    private static FileOutputStream out;
 
     public static void writeHistoryClient(String nameClient, String msg) {
         File file = new File(String.format("client/src/main/java/client/history/%s.txt", nameClient));
-
         if (!file.exists()) {
             try {
                 file.createNewFile();
@@ -53,7 +52,6 @@ public class History {
         }
         return s.toString();
     }
-
 
     public static void closeStreamOutHistory() {
         if (out != null) {
