@@ -4,11 +4,15 @@ import service.ServiceMessages;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 public class ClientHandler {
+    private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
     private Server server;
     private Socket socket;
     private DataInputStream in;
@@ -18,9 +22,9 @@ public class ClientHandler {
     private String login;
 
     public ClientHandler(Server server, Socket socket) {
+
         this.server = server;
         this.socket = socket;
-
         try {
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
@@ -50,7 +54,8 @@ public class ClientHandler {
                                 nickname = newNick;
                                 sendMsg(ServiceMessages.AUTH_OK + " " + nickname + " " + login);
                                 server.subscribe(this);
-                                System.out.println("Client: " + nickname + " authenticated");
+                                LOGGER.info("Client: " + nickname + " authenticated");
+//                                System.out.println("Client: " + nickname + " authenticated");
                                 break;
                             } else {
                                 sendMsg("С этим логином уже зашли в чат");
@@ -115,14 +120,15 @@ public class ClientHandler {
 
             } catch (SocketTimeoutException e) {
                 sendMsg(ServiceMessages.END);
-
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
                 if (getNickname() == null) {
-                    System.out.println("Client unauthorized disconnect!");
+                    LOGGER.info("Client unauthorized disconnect!");
+//                    System.out.println("Client unauthorized disconnect!");
                 } else {
-                    System.out.println(String.format("Client %s disconnect!", getNickname()));
+                    LOGGER.info(String.format("Client %s disconnect!", getNickname()));
+//                    System.out.println(String.format("Client %s disconnect!", getNickname()));
                 }
                 server.unsubscribe(this);
                 try {
@@ -131,7 +137,6 @@ public class ClientHandler {
                     e.printStackTrace();
                 }
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }

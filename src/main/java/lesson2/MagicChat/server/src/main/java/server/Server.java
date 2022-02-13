@@ -3,6 +3,7 @@ package server;
 
 import service.ServiceMessages;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -12,17 +13,23 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.*;
 
 public class Server {
-
+    private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
     private ServerSocket server;
     private Socket socket;
     private final int PORT = 8189;
     private List<ClientHandler> clients;
     private AuthService authService;
 
-
     public Server() {
+        LogManager manager = LogManager.getLogManager();
+        try {
+            manager.readConfiguration(new FileInputStream("logging.properties"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         clients = new CopyOnWriteArrayList<>();
         authService = new DbAuthService();
         ExecutorService service = Executors.newCachedThreadPool();
@@ -30,28 +37,27 @@ public class Server {
         try {
             DataSource.connect();
         } catch (ClassNotFoundException | SQLException e) {
+            LOGGER.severe("Неудалось подключиться к БД");
             throw new RuntimeException("Неудалось подключиться к БД");
         }
 
         try {
             server = new ServerSocket(PORT);
-            System.out.println("Server started!");
-
+            LOGGER.info("Server started!");
 
             while (true) {
                 socket = server.accept();
-                System.out.println("Client connected: " + socket.getRemoteSocketAddress());
+                LOGGER.info("Client connected: " + socket.getRemoteSocketAddress());
                 service.execute(() -> {
                     new ClientHandler(this, socket);
                 });
-
             }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             service.shutdown();
             DataSource.disconnect();
-            System.out.println("Server stop");
+            LOGGER.info("Server stop");
             try {
                 server.close();
             } catch (IOException e) {
@@ -118,4 +124,6 @@ public class Server {
     public AuthService getAuthService() {
         return authService;
     }
+
+
 }
